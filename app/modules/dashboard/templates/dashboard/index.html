@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - PrintShop{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Dashboard</h1>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card text-bg-light"><div class="card-body"><div class="fw-bold">Total Ventas</div><div class="display-6">${{ '%.0f'|format(total_ventas) }}</div></div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-light"><div class="card-body"><div class="fw-bold">Total Pagos</div><div class="display-6">${{ '%.0f'|format(total_pagos) }}</div></div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-light"><div class="card-body"><div class="fw-bold">Órdenes con saldo</div><div class="display-6">{{ pendientes }}</div></div></div>
+  </div>
+</div>
+
+<h2 class="h5" id="notificaciones">Últimas Notificaciones</h2>
+<table class="table table-sm">
+  <thead><tr><th>Fecha</th><th>Canal</th><th>Destinatario</th><th>Asunto</th><th>Estado</th></tr></thead>
+  <tbody>
+    {% for n in notificaciones %}
+    <tr>
+      <td>{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ n.canal }}</td>
+      <td>{{ n.destinatario }}</td>
+      <td>{{ n.asunto or '-' }}</td>
+      <td>{{ n.estado }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

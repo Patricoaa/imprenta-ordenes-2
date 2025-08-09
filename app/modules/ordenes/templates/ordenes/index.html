@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Órdenes - PrintShop{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Órdenes</h1>
+  <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCreate">Nueva</button>
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>Fecha</th><th>Cliente</th><th>Vendedor</th><th>Total</th><th>Abono</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+    {% for o in ordenes %}
+    <tr>
+      <td>{{ o.id }}</td>
+      <td>{{ o.fecha.strftime('%Y-%m-%d') }}</td>
+      <td>{{ o.cliente.nombre }}</td>
+      <td>{{ o.vendedor.nombre if o.vendedor else '-' }}</td>
+      <td>${{ '%.0f'|format(o.precio_total) }}</td>
+      <td>${{ '%.0f'|format(o.abono_calc) }}</td>
+      <td>${{ '%.0f'|format(o.saldo_calc) }}</td>
+      <td>{{ o.estado_calc }}</td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('ordenes.print_view', orden_id=o.id) }}" target="_blank">Imprimir</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('ordenes.pdf', orden_id=o.id) }}">PDF</a>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEdit{{ o.id }}">Editar</button>
+        <form class="d-inline" method="post" action="{{ url_for('ordenes.delete', orden_id=o.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar orden?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEdit{{ o.id }}">
+      <div class="offcanvas-header"><h5>Editar Orden #{{ o.id }}</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+      <div class="offcanvas-body">
+        <form method="post" action="{{ url_for('ordenes.edit', orden_id=o.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-2">
+            <label class="form-label">Cliente</label>
+            <select class="form-select" name="cliente_id">
+              {% for id, name in form.cliente_id.choices %}
+                <option value="{{ id }}" {% if o.cliente_id == id %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Vendedor</label>
+            <select class="form-select" name="vendedor_id">
+              {% for id, name in form.vendedor_id.choices %}
+                <option value="{{ id }}" {% if o.vendedor and o.vendedor.id == id %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Usuario</label>
+            <select class="form-select" name="usuario_id">
+              {% for id, name in form.usuario_id.choices %}
+                <option value="{{ id }}" {% if o.usuario_id == id %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Fecha</label><input class="form-control" type="date" name="fecha" value="{{ o.fecha.strftime('%Y-%m-%d') }}" required></div>
+          <div class="mb-2"><label class="form-label">Precio Neto</label><input class="form-control" type="number" step="0.01" name="precio_neto" value="{{ o.precio_neto }}" required></div>
+          <div class="mb-2"><label class="form-label">IVA</label><input class="form-control" type="number" step="0.01" name="iva" value="{{ o.iva }}" required></div>
+          <div class="mb-2"><label class="form-label">Precio Total</label><input class="form-control" type="number" step="0.01" name="precio_total" value="{{ o.precio_total }}" required></div>
+          <div class="mb-2"><label class="form-label">Observaciones</label><textarea class="form-control" name="observaciones">{{ o.observaciones or '' }}</textarea></div>
+          <button class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCreate">
+  <div class="offcanvas-header"><h5>Nueva Orden</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+  <div class="offcanvas-body">
+    <form method="post" action="{{ url_for('ordenes.create') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-2">
+        <label class="form-label">Cliente</label>
+        <select class="form-select" name="cliente_id">
+          {% for id, name in form.cliente_id.choices %}
+            <option value="{{ id }}">{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-2">
+        <label class="form-label">Vendedor</label>
+        <select class="form-select" name="vendedor_id">
+          {% for id, name in form.vendedor_id.choices %}
+            <option value="{{ id }}">{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-2">
+        <label class="form-label">Usuario</label>
+        <select class="form-select" name="usuario_id">
+          {% for id, name in form.usuario_id.choices %}
+            <option value="{{ id }}">{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-2"><label class="form-label">Fecha</label><input class="form-control" type="date" name="fecha" required></div>
+      <div class="mb-2"><label class="form-label">Precio Neto</label><input class="form-control" type="number" step="0.01" name="precio_neto" required></div>
+      <div class="mb-2"><label class="form-label">IVA</label><input class="form-control" type="number" step="0.01" name="iva" required></div>
+      <div class="mb-2"><label class="form-label">Precio Total</label><input class="form-control" type="number" step="0.01" name="precio_total" required></div>
+      <div class="mb-2"><label class="form-label">Observaciones</label><textarea class="form-control" name="observaciones"></textarea></div>
+      <button class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

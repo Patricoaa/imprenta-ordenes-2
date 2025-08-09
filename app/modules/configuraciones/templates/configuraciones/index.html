@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Configuraciones - PrintShop{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Configuraciones</h1>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">SMTP</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('configuraciones.smtp_save') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-2"><label class="form-label">Host</label><input class="form-control" name="host" value="{{ cfg.SMTP_HOST }}"></div>
+          <div class="mb-2"><label class="form-label">Port</label><input class="form-control" name="port" value="{{ cfg.SMTP_PORT }}"></div>
+          <div class="mb-2"><label class="form-label">Username</label><input class="form-control" name="username" value="{{ cfg.SMTP_USERNAME }}"></div>
+          <div class="mb-2"><label class="form-label">Password</label><input class="form-control" name="password" value="{{ cfg.SMTP_PASSWORD }}"></div>
+          <div class="mb-2"><label class="form-label">Use TLS</label><input class="form-control" name="use_tls" value="{{ 'true' if cfg.SMTP_USE_TLS else 'false' }}"></div>
+          <div class="mb-2"><label class="form-label">From</label><input class="form-control" name="from_addr" value="{{ cfg.SMTP_FROM }}"></div>
+          <button class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Usuarios y Logs</div>
+      <div class="card-body">
+        <a class="btn btn-outline-primary me-2" href="{{ url_for('usuarios.index') }}">Usuarios</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.index') }}#notificaciones">Notificaciones</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
