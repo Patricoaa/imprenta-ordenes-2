@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Orden #{{ orden.id }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1 { font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #999; padding: 6px; }
+    .right { text-align: right; }
+  </style>
+</head>
+<body>
+  <h1>Orden #{{ orden.id }}</h1>
+  <p><strong>Fecha:</strong> {{ orden.fecha.strftime('%Y-%m-%d') }}</p>
+  <p><strong>Cliente:</strong> {{ orden.cliente.nombre }}</p>
+  <p><strong>Vendedor:</strong> {{ orden.vendedor.nombre if orden.vendedor else '-' }}</p>
+  <p><strong>Usuario:</strong> {{ orden.usuario.nombre }}</p>
+
+  <h3>Totales</h3>
+  <table>
+    <tr><th>Neto</th><th>IVA</th><th>Total</th><th>Abono</th><th>Saldo</th></tr>
+    <tr>
+      <td class="right">${{ '%.0f'|format(orden.precio_neto) }}</td>
+      <td class="right">${{ '%.0f'|format(orden.iva) }}</td>
+      <td class="right">${{ '%.0f'|format(orden.precio_total) }}</td>
+      <td class="right">${{ '%.0f'|format(orden.abono_calc) }}</td>
+      <td class="right">${{ '%.0f'|format(orden.saldo_calc) }}</td>
+    </tr>
+  </table>
+
+  <h3>Observaciones</h3>
+  <p>{{ orden.observaciones or '-' }}</p>
+
+  <script>window.print()</script>
+</body>
+</html>

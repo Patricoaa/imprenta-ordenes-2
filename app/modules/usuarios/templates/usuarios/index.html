@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios - PrintShop{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Usuarios</h1>
+  <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCreate">Nuevo</button>
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th></th></tr></thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.nombre }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.rol }}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEdit{{ u.id }}">Editar</button>
+        <form class="d-inline" method="post" action="{{ url_for('usuarios.delete', user_id=u.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar usuario?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEdit{{ u.id }}">
+      <div class="offcanvas-header"><h5>Editar Usuario</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+      <div class="offcanvas-body">
+        <form method="post" action="{{ url_for('usuarios.edit', user_id=u.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-2"><label class="form-label">Nombre</label><input class="form-control" name="nombre" value="{{ u.nombre }}" required></div>
+          <div class="mb-2"><label class="form-label">Email</label><input class="form-control" name="email" type="email" value="{{ u.email }}" required></div>
+          <div class="mb-2"><label class="form-label">Rol</label>
+            <select class="form-select" name="rol">
+              {% for value, label in form.rol.choices %}
+                <option value="{{ value }}" {% if u.rol == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Password (opcional)</label><input class="form-control" type="password" name="password"></div>
+          <button class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCreate">
+  <div class="offcanvas-header"><h5>Nuevo Usuario</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+  <div class="offcanvas-body">
+    <form method="post" action="{{ url_for('usuarios.create') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-2"><label class="form-label">Nombre</label><input class="form-control" name="nombre" required></div>
+      <div class="mb-2"><label class="form-label">Email</label><input class="form-control" name="email" type="email" required></div>
+      <div class="mb-2"><label class="form-label">Rol</label>
+        <select class="form-select" name="rol">
+          {% for value, label in form.rol.choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-2"><label class="form-label">Password</label><input class="form-control" type="password" name="password"></div>
+      <button class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

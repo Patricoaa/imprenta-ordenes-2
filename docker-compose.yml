@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: printshop_web
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - mailhog
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - uploads_data:/app/uploads
+    networks:
+      - backend
+
+  db:
+    image: postgres:14-alpine
+    container_name: printshop_db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: printshop_mailhog
+    ports:
+      - "8025:8025"
+    networks:
+      - backend
+
+volumes:
+  pg_data:
+  uploads_data:
+
+networks:
+  backend:
+    driver: bridge

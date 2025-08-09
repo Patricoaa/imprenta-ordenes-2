@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Vendedores - PrintShop{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Vendedores</h1>
+  <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCreate">Nuevo</button>
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>Nombre</th><th>RUT</th><th>Teléfono</th><th>Correo</th><th>Categoría</th><th></th></tr></thead>
+  <tbody>
+    {% for v in vendedores %}
+    <tr>
+      <td>{{ v.nombre }}</td>
+      <td>{{ v.rut or '' }}</td>
+      <td>{{ v.telefono or '' }}</td>
+      <td>{{ v.correo or '' }}</td>
+      <td>{{ v.categoria.nombre if v.categoria else '-' }}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEdit{{ v.id }}">Editar</button>
+        <form class="d-inline" method="post" action="{{ url_for('vendedores.delete', vendedor_id=v.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar vendedor?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEdit{{ v.id }}">
+      <div class="offcanvas-header"><h5>Editar Vendedor</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+      <div class="offcanvas-body">
+        <form method="post" action="{{ url_for('vendedores.edit', vendedor_id=v.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-2"><label class="form-label">Nombre</label><input class="form-control" name="nombre" value="{{ v.nombre }}" required></div>
+          <div class="mb-2"><label class="form-label">RUT</label><input class="form-control" name="rut" value="{{ v.rut or '' }}"></div>
+          <div class="mb-2"><label class="form-label">Teléfono</label><input class="form-control" name="telefono" value="{{ v.telefono or '' }}"></div>
+          <div class="mb-2"><label class="form-label">Correo</label><input class="form-control" name="correo" value="{{ v.correo or '' }}"></div>
+          <div class="mb-2"><label class="form-label">Categoría</label>
+            <select class="form-select" name="categoria_id">
+              <option value="0">-</option>
+              {% for id, name in form.categoria_id.choices if id != 0 %}
+                <option value="{{ id }}" {% if v.categoria and v.categoria.id == id %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCreate">
+  <div class="offcanvas-header"><h5>Nuevo Vendedor</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+  <div class="offcanvas-body">
+    <form method="post" action="{{ url_for('vendedores.create') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-2"><label class="form-label">Nombre</label><input class="form-control" name="nombre" required></div>
+      <div class="mb-2"><label class="form-label">RUT</label><input class="form-control" name="rut"></div>
+      <div class="mb-2"><label class="form-label">Teléfono</label><input class="form-control" name="telefono"></div>
+      <div class="mb-2"><label class="form-label">Correo</label><input class="form-control" name="correo"></div>
+      <div class="mb-2"><label class="form-label">Categoría</label>
+        <select class="form-select" name="categoria_id">
+          <option value="0">-</option>
+          {% for id, name in form.categoria_id.choices if id != 0 %}
+            <option value="{{ id }}">{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

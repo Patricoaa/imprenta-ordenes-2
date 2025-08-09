@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Pagos - PrintShop{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Pagos</h1>
+  <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCreate">Nuevo</button>
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>Orden</th><th>Fecha</th><th>Monto</th><th>Método</th><th>Usuario</th><th></th></tr></thead>
+  <tbody>
+    {% for p in pagos %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>#{{ p.orden_id }}</td>
+      <td>{{ p.fecha.strftime('%Y-%m-%d') }}</td>
+      <td>${{ '%.0f'|format(p.monto) }}</td>
+      <td>{{ p.metodo or '-' }}</td>
+      <td>{{ p.usuario_registra.nombre if p.usuario_registra else '-' }}</td>
+      <td class="text-end">
+        <form class="d-inline" method="post" action="{{ url_for('pagos.delete', pago_id=p.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar pago?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCreate">
+  <div class="offcanvas-header"><h5>Nuevo Pago</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+  <div class="offcanvas-body">
+    <form method="post" action="{{ url_for('pagos.create') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-2">
+        <label class="form-label">Orden</label>
+        <select class="form-select" name="orden_id">
+          {% for id, label in form.orden_id.choices %}
+            <option value="{{ id }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-2"><label class="form-label">Fecha</label><input class="form-control" type="date" name="fecha" required></div>
+      <div class="mb-2"><label class="form-label">Monto</label><input class="form-control" type="number" step="0.01" name="monto" required></div>
+      <div class="mb-2"><label class="form-label">Método</label><input class="form-control" name="metodo"></div>
+      <button class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
